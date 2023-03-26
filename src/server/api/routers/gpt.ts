@@ -1,13 +1,16 @@
-import z from "zod";
-
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { sendChatCompletionRequest } from "~/server/lib/gpt/chat";
+import { chatSchema } from "~/schema/gpt";
 
 export const gptRouter = createTRPCRouter({
-  chat: publicProcedure
-    .input(z.object({ text: z.string() }))
-    .query(({ input }) => {
-      return {
-        text: `Hello ${input.text}`,
-      };
-    }),
+  chat: publicProcedure.input(chatSchema).mutation(async ({ input }) => {
+    try {
+      const response = await sendChatCompletionRequest(input.text);
+      const text = response ? response : "I don't know what to say.";
+      return { text };
+    } catch (error) {
+      console.error(error);
+      return { text: "An error occurred while fetching response." };
+    }
+  }),
 });

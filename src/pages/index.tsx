@@ -1,23 +1,12 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { Button, MantineProvider, TextInput } from "@mantine/core";
-import { useState } from "react";
-import VariablesComponent from "~/components/VariablesComponent";
+import { MantineProvider } from "@mantine/core";
+import useStore from "~/store/gpt";
+import { InitialGoalForm } from "~/components/InitialGoalForm";
+import PreviousStepsTable from "~/components/PreviousStepsTable";
 
 const Home: NextPage = () => {
-  const [text, setText] = useState("");
-  const [prevText, setPrevText] = useState("");
-  const [showChat, setShowChat] = useState(false);
-
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setPrevText(text);
-    setShowChat(true);
-  }
-
-  function handleTextChange(event: React.ChangeEvent<HTMLInputElement>) {
-    setText(event.target.value);
-  }
+  const previousSteps = useStore((state) => state.previousSteps);
 
   return (
     <>
@@ -33,28 +22,8 @@ const Home: NextPage = () => {
               <span className="text-[hsl(280,100%,70%)]">Shiny</span> Garbanzo
             </h1>
           </div>
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col items-center justify-center"
-          >
-            <TextInput
-              withAsterisk
-              id="text"
-              label="What do you want to do?"
-              radius="sm"
-              placeholder="Enter text here"
-              onChange={handleTextChange}
-            />
-            <Button
-              variant="gradient"
-              color="blue"
-              style={{ marginTop: 8 }}
-              type="submit"
-            >
-              Submit
-            </Button>
-          </form>
-          {showChat && text === prevText && <VariablesComponent text={text} />}
+          <InitialGoalForm />
+          <PreviousStepsTable steps={previousSteps} />
         </main>
       </MantineProvider>
     </>

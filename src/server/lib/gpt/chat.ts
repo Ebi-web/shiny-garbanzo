@@ -31,7 +31,6 @@ export async function sendChatCompletionRequest(
     model: "gpt-3.5-turbo",
     max_tokens: 1000,
     n: 1,
-    stop: "\n",
   };
 
   try {

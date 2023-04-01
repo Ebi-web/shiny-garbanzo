@@ -3,7 +3,7 @@ import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import useStore from "~/store/gpt";
 import { InitialGoalForm } from "~/components/InitialGoalForm";
-import PreviousStepsTable from "~/components/PreviousStepsTable";
+import { PreviousStepsForm } from "~/components/PreviousStepsForm";
 
 const Home: NextPage = () => {
   const previousSteps = useStore((state) => state.previousSteps);
@@ -23,7 +23,7 @@ const Home: NextPage = () => {
             </h1>
           </div>
           <InitialGoalForm />
-          <PreviousStepsTable steps={previousSteps} />
+          <PreviousStepsForm steps={previousSteps} />
         </main>
       </MantineProvider>
     </>

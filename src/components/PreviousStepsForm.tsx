@@ -2,7 +2,8 @@ import PreviousStepsTable from "~/components/PreviousStepsTable";
 import { useGPT } from "~/hooks/useGPT";
 import useStore from "~/store/gpt";
 import { Button } from "@mantine/core";
-import React from "react";
+import React, { useCallback } from "react";
+import { Role } from "~/schema/gpt";
 
 interface Props {
   steps: string[];
@@ -26,14 +27,51 @@ export const PreviousStepsForm: React.FC<Props> = (props) => {
     },
   });
 
+  const mutateChat = useCallback(
+    (steps: string[]) => {
+      const prompt = {
+        messages: [
+          {
+            role: Role.User,
+            content: "全ての{Steps}から可変な変数を取り出してください。",
+          },
+          {
+            role: Role.System,
+            content: "{Goal}を達成したいです。",
+          },
+          {
+            role: Role.System,
+            content: `{Goal}=${initialGoal}`,
+          },
+          {
+            role: Role.System,
+            content: "日本語で出力してください",
+          },
+          {
+            role: Role.System,
+            content: `出力はJSON形式で変数のみを羅列してください。それ以外の形式や余計な情報は含めないでください。`,
+          },
+          {
+            role: Role.System,
+            content: `例: {"材料": "牛肉", "調味料": ["塩","胡椒"]}`,
+          },
+          {
+            role: Role.Assistant,
+            content: `{Steps}=${JSON.stringify(steps)}`,
+          },
+        ],
+      };
+      chatMutation.mutate(prompt);
+    },
+    [chatMutation, initialGoal]
+  );
+
   if (!steps.length) {
     return null;
   }
-
   const handleSubmit = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    const prompt = generateChatPrompt(steps, initialGoal);
-    chatMutation.mutate({ text: prompt });
+    mutateChat(steps);
   };
 
   return (
@@ -53,25 +91,3 @@ export const PreviousStepsForm: React.FC<Props> = (props) => {
     </>
   );
 };
-
-function generateChatPrompt(steps: string[], initialGoalText: string): string {
-  const stepsStringWithQuotes = JSON.stringify(steps);
-  const stepsStringWithoutQuotes = stepsStringWithQuotes.replace(/"/g, "");
-
-  return `
-  #[このコンテンツは [Goal] を SeekするためのTemplateです］
-- このコンテンツを作成するための{Goal}です。
-- [Goal]:${initialGoalText}
-- Goalを達成するために必要な手順を分解します。
-- 分解した手順はカンマ区切りで順番に格納されていて{Steps}の通りです。
-- 変数を定義します。
--  Goalを達成するために必要な手順を分解します。
--  {Steps}: ${stepsStringWithoutQuotes}
-- 各種変数を使用して、変数を減らすことができないか検対する
-- [Goal]の定義を変数を使用して表すことで、［Goal]の設定だけで手順を分解できるようにしたい
-- 変数をStepsから取り出して{Added variable}に格納する
-- [Output style] :
-- [Added variable]を辞書形式で一般化して書き出して下さい。それ以外は出力しないでください。
-- lang:ja
-  `;
-}

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { type Role } from "~/schema/gpt";
 
 interface ChatCompletionResponse {
   choices: {
@@ -11,8 +12,20 @@ interface ChatCompletionResponse {
   }[];
 }
 
+interface Message {
+  role: Role;
+  content: string;
+}
+
+interface RequestOptions {
+  messages: Message[];
+  model?: string;
+  max_tokens?: number;
+  n?: number;
+}
+
 export async function sendChatCompletionRequest(
-  prompt: string
+  options: RequestOptions
 ): Promise<string | undefined> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -26,11 +39,15 @@ export async function sendChatCompletionRequest(
     },
   };
 
-  const body = {
-    messages: [{ role: "user", content: prompt }],
+  const defaultOptions = {
     model: "gpt-3.5-turbo",
     max_tokens: 1000,
     n: 1,
+  };
+
+  const body = {
+    ...defaultOptions,
+    ...options,
   };
 
   try {

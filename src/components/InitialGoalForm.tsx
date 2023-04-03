@@ -2,6 +2,7 @@ import { Button, TextInput } from "@mantine/core";
 import React, { useCallback } from "react";
 import { useGPT } from "~/hooks/useGPT";
 import useStore from "~/store/gpt";
+import { Role } from "~/schema/gpt";
 
 export const InitialGoalForm: React.FC = () => {
   const updateInitialGoalText = useStore((state) => state.setInitialGoalText);
@@ -20,13 +21,41 @@ export const InitialGoalForm: React.FC = () => {
     },
   });
 
+  const mutateChat = useCallback(
+    (s: string) => {
+      const prompt = {
+        messages: [
+          {
+            role: Role.User,
+            content: `{Goal}=${s}`,
+          },
+          {
+            role: Role.System,
+            content:
+              "{Goal}を達成したいです。そのために必要な工程をstep by stepで分解して洗い出してください",
+          },
+          {
+            role: Role.System,
+            content: "日本語で回答してください",
+          },
+          {
+            role: Role.System,
+            content:
+              "出力は[(step1の内容), (step2の内容), (step3の内容), ...,(step{END}の内容)]のようなTypeScriptの配列形式です。各stepはダブルクォーテーションで囲ってください。",
+          },
+        ],
+      };
+      chatMutation.mutate(prompt);
+    },
+    [chatMutation]
+  );
+
   const handleSubmit = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      const processedText = generateChatPrompt(initialGoalText);
-      chatMutation.mutate({ text: processedText });
+      mutateChat(initialGoalText);
     },
-    [chatMutation, initialGoalText]
+    [initialGoalText, mutateChat]
   );
 
   return (
@@ -56,10 +85,3 @@ export const InitialGoalForm: React.FC = () => {
     </form>
   );
 };
-
-function generateChatPrompt(text: string): string {
-  return `{Goal} = ${text}
-  
-{Goal}を達成したいです。そのために必要な工程をstep by stepで分解して洗い出し、配列形式で出力してください。
-配列形式とは、[要素1, 要素2, 要素3, ...]のように、要素をカンマで区切って並べたものです。各要素はダブルクォーテーションで囲ってください。`;
-}

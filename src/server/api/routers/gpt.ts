@@ -5,7 +5,7 @@ import { chatSchema } from "~/schema/gpt";
 export const gptRouter = createTRPCRouter({
   chat: publicProcedure.input(chatSchema).mutation(async ({ input }) => {
     try {
-      const response = await sendChatCompletionRequest(input.text);
+      const response = await sendChatCompletionRequest(input);
       const text = response ? response : "I don't know what to say.";
       return { text };
     } catch (error) {

@@ -4,9 +4,11 @@ import { MantineProvider } from "@mantine/core";
 import useStore from "~/store/gpt";
 import { InitialGoalForm } from "~/components/InitialGoalForm";
 import { PreviousStepsForm } from "~/components/PreviousStepsForm";
+import VariablesTable from "~/components/VariablesTable";
 
 const Home: NextPage = () => {
   const previousSteps = useStore((state) => state.previousSteps);
+  const variables = useStore((state) => state.variables);
 
   return (
     <>
@@ -24,6 +26,7 @@ const Home: NextPage = () => {
           </div>
           <InitialGoalForm />
           <PreviousStepsForm steps={previousSteps} />
+          {<VariablesTable variables={variables} />}
         </main>
       </MantineProvider>
     </>

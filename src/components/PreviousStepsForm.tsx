@@ -4,6 +4,7 @@ import useStore from "~/store/gpt";
 import { Button } from "@mantine/core";
 import React, { useCallback } from "react";
 import { Role } from "~/schema/gpt";
+import { extractFirstArray, extractFirstJSON } from "~/utils/array";
 
 interface Props {
   steps: string[];
@@ -18,7 +19,8 @@ export const PreviousStepsForm: React.FC<Props> = (props) => {
   const { chatMutation } = useGPT({
     onSuccess: (res) => {
       try {
-        const vars = JSON.parse(res.text) as Record<string, string>;
+        const vars = extractFirstJSON(res.text);
+        if (!vars) return;
         updateVariables(vars);
       } catch (error) {
         console.error(error);
@@ -30,34 +32,49 @@ export const PreviousStepsForm: React.FC<Props> = (props) => {
   const mutateChat = useCallback(
     (steps: string[]) => {
       const prompt = {
+        temperature: 0,
         messages: [
           {
             role: Role.User,
-            content: "全ての{Steps}から可変な変数を取り出してください。",
+            // 一括でまるっと出してみる(Yudaiの例)
+            content: `Extract the variables in {Steps} that can be changed or arranged, and create the variable name and the contents of the variable. Now output the JSON of set of variable names and their contents.`,
           },
           {
-            role: Role.System,
-            content: "{Goal}を達成したいです。",
+            role: Role.User,
+            content: "I want to achieve {Goal}.",
           },
           {
-            role: Role.System,
+            role: Role.User,
             content: `{Goal}=${initialGoal}`,
           },
           {
             role: Role.System,
-            content: "日本語で出力してください",
+            content: "lang=ja",
           },
           {
             role: Role.System,
-            content: `出力はJSON形式で変数のみを羅列してください。それ以外の形式や余計な情報は含めないでください。`,
+            content: `You are an API that provides structured JSON responses.`,
           },
           {
-            role: Role.System,
-            content: `例: {"材料": "牛肉", "調味料": ["塩","胡椒"]}`,
+            role: Role.User,
+            // Goalも入れた方が良いかも。あるいはshotを増やすか？
+            content: `Example when input if {Goal}=カレーを料理する {Steps}=[
+    "材料を準備する,
+    "お米をといで炊飯器で炊く",
+    "野菜と肉や魚を切って調味料で味付けする",
+    "フラインパンで野菜と肉や魚を炒める",
+    "野菜と肉や魚を炒め、カレールーと水を加えて煮込む",
+    "カレーを炊き上がったご飯に添える"
+] then Your output should be as follows:
+"""JSON
+ {"ingredients": "牛肉", "seasoning": ["塩", "胡椒"]}
+"""
+ `,
           },
           {
-            role: Role.Assistant,
-            content: `{Steps}=${JSON.stringify(steps)}`,
+            role: Role.User,
+            content: `Here, you store the steps needed to realize the {Goal} in a variable of type str named step1, step2, ..., stepn.
+{Steps} = [{step1}, {step2}, ..., {stepn}] {Steps}=${JSON.stringify(steps)}`,
           },
         ],
       };

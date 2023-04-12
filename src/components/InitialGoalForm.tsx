@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import { useGPT } from "~/hooks/useGPT";
 import useStore from "~/store/gpt";
 import { Role } from "~/schema/gpt";
+import { extractFirstArray } from "~/utils/array";
 
 export const InitialGoalForm: React.FC = () => {
   const updateInitialGoalText = useStore((state) => state.setInitialGoalText);
@@ -12,10 +13,15 @@ export const InitialGoalForm: React.FC = () => {
   const { chatMutation } = useGPT({
     onSuccess: (res) => {
       try {
-        const vars = JSON.parse(res.text) as string[];
+        const vars = extractFirstArray(res.text);
+        if (vars == null) {
+          window.alert("Something went wrong. Please try again.");
+          return;
+        }
         updatePreviousSteps(vars);
       } catch (error) {
         console.error(error);
+        window.alert("Something went wrong. Please try again.");
         return;
       }
     },
@@ -27,21 +33,15 @@ export const InitialGoalForm: React.FC = () => {
         messages: [
           {
             role: Role.User,
-            content: `{Goal}=${s}`,
+            content: `{Goal}=${s}. I want to achieve {Goal}. Please break down and identify the process required to achieve this step by step.Output style must be [{step1}, {step2}, ..., {stepn}].`,
           },
           {
             role: Role.System,
-            content:
-              "{Goal}を達成したいです。そのために必要な工程をstep by stepで分解して洗い出してください",
+            content: "lang=ja",
           },
           {
-            role: Role.System,
-            content: "日本語で回答してください",
-          },
-          {
-            role: Role.System,
-            content:
-              "出力は[(step1の内容), (step2の内容), (step3の内容), ...,(step{END}の内容)]のようなTypeScriptの配列形式です。各stepはダブルクォーテーションで囲ってください。",
+            role: Role.User,
+            content: `Output example when {Goal} is 'Make a cake': [材料を準備する, 材料を混ぜる, ケーキを焼く, ケーキを飾りつける]`,
           },
         ],
       };

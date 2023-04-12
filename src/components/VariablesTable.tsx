@@ -5,6 +5,7 @@ interface VariablesTableProps {
 }
 
 const VariablesTable: React.FC<VariablesTableProps> = ({ variables }) => {
+  if (!Object.keys(variables).length) return null;
   const rows = Object.entries(variables).map(([key, value]) => (
     <tr key={key}>
       <td>{key}</td>

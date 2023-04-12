@@ -22,6 +22,7 @@ interface RequestOptions {
   model?: string;
   max_tokens?: number;
   n?: number;
+  temperature?: number;
 }
 
 export async function sendChatCompletionRequest(

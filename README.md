@@ -1,28 +1,56 @@
-# Create T3 App
+# How to work on your environment
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## 1. Get the OpenAI api key
 
-## What's next? How do I make an app with this?
+You can get the api key from [Your OpenAI account](https://platform.openai.com/account/api-keys).
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## 2. Set the api key
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+You can set the api key on .env file.
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+```.env
+# When adding additional environment variables, the schema in "/src/env.mjs"
+# should be updated accordingly.
 
-## Learn More
+# Prisma
+# https://www.prisma.io/docs/reference/database-reference/connection-urls#env
+DATABASE_URL="file:./db.sqlite"
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+# Next Auth
+# You can generate a new secret on the command line with:
+# openssl rand -base64 32
+# https://next-auth.js.org/configuration/options#secret
+# NEXTAUTH_SECRET=""
+NEXTAUTH_URL="http://localhost:3000"
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+# Next Auth Discord Provider
+DISCORD_CLIENT_ID=""
+DISCORD_CLIENT_SECRET=""
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+# OpenAI
+OPENAI_API_KEY= // <- Set your api key here!!
+```
 
-## How do I deploy this?
+## 3. Install dependencies
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+```bash
+$ yarn
+
+or 
+
+$ npm install
+```
+
+## 4. Run the development server
+
+```bash
+$ yarn dev
+
+or
+
+$ npm run dev
+```
+
+## 5. Open the app
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

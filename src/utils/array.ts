@@ -52,3 +52,5 @@ export function parseTrueGoal(input: string): string {
 
   return trueGoalMatch[1];
 }
+
+//変数を編集できるように

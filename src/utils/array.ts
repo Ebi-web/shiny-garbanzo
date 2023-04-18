@@ -1,25 +1,54 @@
-export function extractFirstArray(input: string): string[] | null {
-  const arrayRegex = /\[([^\]]*)\]/;
-  const match = input.match(arrayRegex);
-  if (match && match[1]) {
-    const arrayString = match[1];
-    return arrayString.split(",").map((item) => item.trim());
-  } else {
-    return null;
+export function parseSteps(input: string): string[] {
+  const stepsRegex = /\{Steps\} = \[(.*?)\]/gs;
+  const stepsMatch = stepsRegex.exec(input);
+
+  if (!stepsMatch || !stepsMatch[1]) {
+    return [];
+  }
+
+  const stepsString = stepsMatch[1].trim();
+  const elementRegex = /"([^"]*)"/g;
+  const steps = [];
+
+  let elementMatch;
+  while ((elementMatch = elementRegex.exec(stepsString)) !== null) {
+    if (!elementMatch[1]) {
+      continue;
+    }
+    steps.push(elementMatch[1]);
+  }
+
+  return steps;
+}
+
+export function parseVariables(input: string): Record<string, unknown> {
+  const variablesRegex = /\{Variables\s*?\} = (\{[\s\S]*?\})/gs;
+  const variablesMatch = variablesRegex.exec(input);
+
+  if (!variablesMatch || !variablesMatch[1]) {
+    return {};
+  }
+
+  const variablesString = variablesMatch[1].trim();
+  console.log("variablesString", variablesString);
+
+  try {
+    return JSON.parse(variablesString) as Record<string, unknown>;
+  } catch (error) {
+    console.error("Error parsing JSON:", error);
+    return {};
   }
 }
-export function extractFirstJSON(input: string): Record<string, string> | null {
-  const jsonRegex = /{([^}]*)}/;
-  const match = input.match(jsonRegex);
-  if (match && match[0]) {
-    const jsonString = match[0];
-    try {
-      return JSON.parse(jsonString) as Record<string, string>;
-    } catch (error) {
-      console.error("Failed to parse JSON:", error);
-      return null;
-    }
-  } else {
-    return null;
+
+export function parseTrueGoal(input: string): string {
+  const trueGoalRegex = /\{TrueGoal\} = (.*)/gs;
+  const trueGoalMatch = trueGoalRegex.exec(input);
+
+  console.log("trueGoalMatch", trueGoalMatch![1]);
+
+  if (!trueGoalMatch || !trueGoalMatch[1]) {
+    return "";
   }
+
+  return trueGoalMatch[1];
 }

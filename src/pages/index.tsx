@@ -3,12 +3,14 @@ import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import useStore from "~/store/gpt";
 import { InitialGoalForm } from "~/components/InitialGoalForm";
-import { PreviousStepsForm } from "~/components/PreviousStepsForm";
 import VariablesTable from "~/components/VariablesTable";
+import EyeCatchingText from "~/components/TrueGoal";
+import PreviousStepsTable from "~/components/PreviousStepsTable";
 
 const Home: NextPage = () => {
   const previousSteps = useStore((state) => state.previousSteps);
   const variables = useStore((state) => state.variables);
+  const enhancedGoal = useStore((state) => state.enhancedGoalText);
 
   return (
     <>
@@ -25,8 +27,9 @@ const Home: NextPage = () => {
             </h1>
           </div>
           <InitialGoalForm />
-          <PreviousStepsForm steps={previousSteps} />
-          {<VariablesTable variables={variables} />}
+          {enhancedGoal && <EyeCatchingText text={enhancedGoal} />}
+          {previousSteps && <PreviousStepsTable steps={previousSteps} />}
+          {variables && <VariablesTable variables={variables} />}
         </main>
       </MantineProvider>
     </>

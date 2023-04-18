@@ -1,3 +1,5 @@
+![_2cd35ae8-cdf6-47a6-a7a7-c5503281eed2](https://user-images.githubusercontent.com/74973675/232787524-f2835514-6b0c-4b29-b94d-a87fe3d57552.jpeg)
+
 # How to work on your environment
 
 ## 1. Get the OpenAI api key
